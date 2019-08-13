@@ -1,7 +1,7 @@
 <?php
 /* guardianWeb*/
 class guardian {
-  public __construct(){}
+  public function __construct(){}
   
 }
 $guardian = guardian();
