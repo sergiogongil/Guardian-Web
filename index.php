@@ -1,6 +1,8 @@
 <?php
 /* guardianWeb*/
-
-
-//Guardar cambios
+class guardian {
+  public __construct(){}
+  
+}
+$guardian = guardian();
 ?>
