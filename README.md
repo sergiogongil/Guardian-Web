@@ -8,6 +8,4 @@ Guardián Web es una aplicación pensada para realizar un seguimiento de visitas
 Podrás ver y distinguir las visitas reales que tiene tu sitio Web, las plataformas que utilizan tus visitantes, las páginas que visitan, analizar comportamientos, recibir por correo electrónico avisos de incidencias y banear IPs en caso de que sea necesario.
 
 
-<br><br>
-<a href="https://www.guardianweb.es"><h1 align="center">guardianweb.es</h1></a>
-<br><br>
+
