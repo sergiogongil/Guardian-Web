@@ -217,8 +217,9 @@ MIT — see [LICENSE](LICENSE).
 
 
 
-<img width="866" height="625" alt="das_dark" src="https://github.com/user-attachments/assets/effe66e1-286b-4d0a-81c2-a2a3c7c31880" />
-<img width="866" height="625" alt="das_1" src="https://github.com/user-attachments/assets/e0468920-8537-45d4-ba0e-b8e41798a390" />
+<img width="866" height="625" alt="das_dark" src="https://github.com/user-attachments/assets/e74fdb2f-f8ce-43b3-89c1-85a36d7a4726" />
+<img width="866" height="625" alt="das_1" src="https://github.com/user-attachments/assets/3db5f930-e673-4144-94d4-8cfb3510ee34" />
+
 
 # mini-guardianweb (Español)
 
