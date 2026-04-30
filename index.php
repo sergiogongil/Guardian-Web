@@ -32,6 +32,10 @@ mgw_require_auth($config);
 require_once __DIR__ . '/lib/db.php';
 $pdo = mgw_db($config);
 
+// The tracked domain comes from config — single-site by design.
+// Defined early because several queries below reference it.
+$site_host = trim((string)($config['site_host'] ?? ''));
+
 // --- i18n: load dictionaries ---------------------------------------------
 $lang_dir = __DIR__ . '/lang';
 $dictionaries = [];
@@ -99,8 +103,12 @@ $stats = [
 ];
 
 // --- Kind distribution (donut) -------------------------------------------
+// Counts DISTINCT visitors (ip_hash) per kind, not raw hits. A bot that
+// hits 1000 times with the same IP contributes 1 to bot_other, not 1000.
+// Otherwise heavy crawlers would dominate the "Visitor mix" donut and
+// drown out real human visitors.
 $st = $pdo->prepare("
-    SELECT kind, COUNT(*) AS n
+    SELECT kind, COUNT(DISTINCT ip_hash) AS n
     FROM registros
     WHERE ts >= :s
     GROUP BY kind
@@ -156,10 +164,24 @@ $st->execute([':s' => $since]);
 $top_ai = $st->fetchAll();
 
 // --- Top pages (humans only) ---------------------------------------------
+// Normalises the path before grouping, so:
+//   - the query string is stripped (so "/?utm=a" and "/?utm=b" merge as "/")
+//   - any trailing slash is removed (except for the root "/"), so
+//     "/about" and "/about/" merge as "/about".
 $st = $pdo->prepare("
-    SELECT path, COUNT(*) AS n
-    FROM registros
-    WHERE kind = 'human' AND ts >= :s
+    WITH norm AS (
+        SELECT
+            CASE
+                WHEN instr(path, '?') > 0 THEN substr(path, 1, instr(path, '?') - 1)
+                ELSE path
+            END AS raw_path
+        FROM registros
+        WHERE kind = 'human' AND ts >= :s
+    )
+    SELECT
+        COALESCE(NULLIF(rtrim(raw_path, '/'), ''), '/') AS path,
+        COUNT(*) AS n
+    FROM norm
     GROUP BY path
     ORDER BY n DESC
     LIMIT 10
@@ -167,26 +189,58 @@ $st = $pdo->prepare("
 $st->execute([':s' => $since]);
 $top_pages = $st->fetchAll();
 
-// --- Top referrers (host only) -------------------------------------------
+// --- Top referrers (host only, external) ---------------------------------
+// Two corrections versus the naive approach:
+//   1. Self-referrals are EXCLUDED. Internal navigation generates a Referer
+//      pointing at the site's own host; without filtering, that domain
+//      always tops the list and drowns out real external sources.
+//   2. Visits with no Referer (typed URL, bookmark, mobile app, strict
+//      Referrer-Policy) are aggregated into a synthetic "(direct)" bucket
+//      so they remain visible.
+
+// The site's own host, normalised the same way as in lib/record.php so
+// "proxxi.es" and "www.proxxi.es" both count as self-referrals.
+$site_host_norm = $site_host !== ''
+    ? preg_replace('/^www\./i', '', strtolower($site_host))
+    : '';
+
 $st = $pdo->prepare("
     SELECT referrer, COUNT(*) AS n
     FROM registros
-    WHERE referrer IS NOT NULL AND ts >= :s
+    WHERE referrer IS NOT NULL AND referrer <> '' AND ts >= :s
     GROUP BY referrer
     ORDER BY n DESC
-    LIMIT 50
+    LIMIT 200
 ");
 $st->execute([':s' => $since]);
-$ref_rows = $st->fetchAll();
-
-// Aggregate referrers by host so "https://x.com/a" and "https://x.com/b" merge.
 $ref_by_host = [];
-foreach ($ref_rows as $r) {
-    $host = parse_url($r['referrer'], PHP_URL_HOST) ?: $r['referrer'];
+foreach ($st->fetchAll() as $r) {
+    $host = parse_url($r['referrer'], PHP_URL_HOST);
+    if (!is_string($host) || $host === '') {
+        continue; // unparseable Referer
+    }
+    $host_norm = preg_replace('/^www\./i', '', strtolower($host));
+    if ($site_host_norm !== '' && $host_norm === $site_host_norm) {
+        continue; // self-referral — skip
+    }
     if (!isset($ref_by_host[$host])) {
         $ref_by_host[$host] = 0;
     }
     $ref_by_host[$host] += (int)$r['n'];
+}
+
+// Direct visits: hits with no Referer at all.
+$st = $pdo->prepare("
+    SELECT COUNT(*) AS n
+    FROM registros
+    WHERE (referrer IS NULL OR referrer = '') AND ts >= :s
+");
+$st->execute([':s' => $since]);
+$direct_count = (int)$st->fetch()['n'];
+
+// Use a sentinel key for "(direct)" so the HTML can render it specially.
+if ($direct_count > 0) {
+    $ref_by_host['__direct__'] = $direct_count;
 }
 arsort($ref_by_host);
 $top_referrers = array_slice($ref_by_host, 0, 10, true);
@@ -241,9 +295,6 @@ $st = $pdo->query("
 $top_ai_history = $st->fetchAll();
 
 $has_history = !empty($history_months);
-
-// The tracked domain comes from config — single-site by design.
-$site_host = trim((string)($config['site_host'] ?? ''));
 
 // Palette shared with JS. Kind labels now come from the dictionary.
 $palette = [
@@ -437,7 +488,11 @@ $palette = [
                     <tbody>
                     <?php foreach ($top_referrers as $host_name => $n): ?>
                         <tr class="border-t border-slate-100 dark:border-slate-800">
-                            <td class="py-1.5 max-w-0 truncate" title="<?= h($host_name) ?>"><?= h($host_name) ?></td>
+                            <?php if ($host_name === '__direct__'): ?>
+                                <td class="py-1.5 italic text-slate-500 dark:text-slate-400" data-i18n="top_refs_direct">(direct)</td>
+                            <?php else: ?>
+                                <td class="py-1.5 max-w-0 truncate" title="<?= h($host_name) ?>"><?= h($host_name) ?></td>
+                            <?php endif; ?>
                             <td class="py-1.5 text-right tabular-nums text-slate-500 dark:text-slate-400 pl-2"><?= number_format((int)$n) ?></td>
                         </tr>
                     <?php endforeach; ?>
