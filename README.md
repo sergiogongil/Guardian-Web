@@ -215,6 +215,11 @@ MIT — see [LICENSE](LICENSE).
 ---
 ---
 
+
+
+<img width="866" height="625" alt="das_dark" src="https://github.com/user-attachments/assets/effe66e1-286b-4d0a-81c2-a2a3c7c31880" />
+<img width="866" height="625" alt="das_1" src="https://github.com/user-attachments/assets/e0468920-8537-45d4-ba0e-b8e41798a390" />
+
 # mini-guardianweb (Español)
 
 > Contador de visitas minimalista para un único sitio, con detección de bots
