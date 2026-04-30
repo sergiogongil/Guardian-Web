@@ -1,0 +1,14 @@
+# Local config (each install has its own)
+config.php
+
+# SQLite database files
+data/*.sqlite
+data/*.sqlite-journal
+data/*.sqlite-wal
+data/*.sqlite-shm
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

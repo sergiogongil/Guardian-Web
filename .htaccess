@@ -1,0 +1,23 @@
+# mini-guardianweb — Apache config.
+#
+# The only purpose of this file is to make HTTP Basic Auth work reliably
+# across mod_php, PHP-CGI and PHP-FPM setups.
+#
+# In CGI / FPM mode, Apache does not always forward the "Authorization"
+# request header to PHP, so $_SERVER['PHP_AUTH_USER'] / PHP_AUTH_PW stay
+# empty and the browser loops on the auth dialog. The rewrite below
+# explicitly copies the header into an environment variable that PHP can
+# read (via $_SERVER['HTTP_AUTHORIZATION']).
+#
+# Wrapped in <IfModule> so it's a no-op on servers without mod_rewrite.
+# Safe to ship: idempotent and has no effect when the header isn't sent.
+#
+# On Nginx this file is ignored. If you run mini-guardianweb under Nginx
+# and see the auth loop, add this to your server / location block:
+#
+#     fastcgi_param HTTP_AUTHORIZATION $http_authorization;
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP:Authorization} ^(.+)$
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
