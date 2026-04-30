@@ -1,0 +1,107 @@
+{
+    "subtitle": "Contador de visitas con detección de bots y crawlers IA.",
+    "tracking": "Rastreando",
+
+    "range_24h": "Últimas 24h",
+    "range_7d":  "Últimos 7d",
+    "range_30d": "Últimos 30d",
+    "range_all": "Reciente",
+
+    "toggle_dark": "Cambiar modo oscuro",
+    "toggle_lang": "Cambiar idioma",
+
+    "card_today":          "Hoy",
+    "card_today_hint":     "hits desde medianoche",
+    "card_7d":             "Últimos 7 días",
+    "card_7d_hint":        "hits",
+    "card_30d":            "Últimos 30 días",
+    "card_30d_hint":       "hits",
+    "card_unique7d":       "Visitantes únicos 7d",
+    "card_unique7d_hint":  "ip_hash distintos",
+
+    "chart_hourly":     "Hits por hora — últimas 24h",
+    "chart_hourly_sub": "apilados por tipo de visitante",
+    "chart_mix":        "Mezcla de visitantes",
+
+    "top_ai":            "Top crawlers IA",
+    "top_ai_empty":      "No se han visto crawlers IA en este rango.",
+    "top_pages":         "Páginas más vistas",
+    "top_pages_humans":  "(humanos)",
+    "top_pages_empty":   "Aún no hay visitas de humanos.",
+    "top_refs":          "Top referrers",
+    "top_refs_empty":    "Aún no hay referrers.",
+
+    "top_uas_title":     "User-agents detectados",
+    "top_uas_subtitle":  "Lo que realmente llega a tu sitio, con el veredicto del clasificador para cada uno. Útil para detectar bots que se hacen pasar por navegadores.",
+    "top_uas_empty":     "Aún no se han registrado user-agents.",
+    "top_uas_col_ua":    "User-agent",
+    "top_uas_col_kind":  "Tipo",
+    "top_uas_col_bot":   "Detectado como",
+    "top_uas_col_hits":  "Hits",
+    "top_uas_col_uniq":  "IPs únicas",
+
+    "history_title":         "Histórico mensual",
+    "history_subtitle":      "Totales agregados de los meses ya purgados. Las rutas de página y los referrers no se conservan a esta granularidad.",
+    "history_chart_title":   "Hits por mes",
+    "history_top_ai_title":  "Top crawlers IA (todo el histórico)",
+    "history_top_ai_empty":  "Aún no hay crawlers IA en el archivo.",
+
+    "footer_source":   "código fuente",
+    "footer_inspired": "inspirado en",
+
+    "kind_human":        "Humanos",
+    "kind_bot_official": "Bots oficiales",
+    "kind_bot_ai":       "Bots IA",
+    "kind_bot_other":    "Otros bots",
+
+    "nav_guide":          "Guía",
+    "nav_back_dashboard": "← Dashboard",
+
+    "guide_subtitle": "Guía de uso y referencia.",
+
+    "guide_intro_title": "¿Qué es mini-guardianweb?",
+    "guide_intro_body":  "Un contador de visitas minimalista para un único sitio, escrito en PHP 8.1+ puro con SQLite. Clasifica cada hit como humano, bot oficial de buscador, crawler de IA u otro bot genérico, y lo muestra en un único dashboard. Sin Composer, sin npm, sin paso de build — basta con subirlo a cualquier hosting con PHP.",
+
+    "guide_install_title": "Instalación",
+    "guide_install_step1": "Copia <code>config.example.php</code> a <code>config.php</code> y edita los valores. Pon un <code>salt</code> aleatorio y largo, y <code>site_host</code> con tu dominio (p. ej. <code>ejemplo.com</code>).",
+    "guide_install_step2": "Incluye <code>shield.php</code> al principio de cualquier página PHP que quieras rastrear: <code>require __DIR__ . '/ruta/a/shield.php';</code>. Los errores se silencian: el tracker nunca puede romper la página que lo incluye.",
+    "guide_install_step3": "Para sitios no-PHP (HTML estático, otros lenguajes, tracking entre dominios), usa <code>api.php</code> en su lugar — como imagen 1×1 (<code>&lt;img src=\"api.php?p=/about&amp;h=ejemplo.com\"&gt;</code>) o vía <code>fetch()</code>. Los comentarios al inicio de <code>api.php</code> tienen ejemplos completos.",
+    "guide_install_step4": "Abre <code>index.php</code> en el navegador. El fichero SQLite y sus tablas se crean automáticamente en el primer hit.",
+
+    "guide_embed_title":         "Código de embed para sitios no-PHP",
+    "guide_embed_intro":         "Para webs HTML estáticas o backends no-PHP, pega este píxel de tracking 1×1 en cualquier punto del <code>&lt;body&gt;</code> de la página. No hace falta JavaScript ni cookies — cada carga de página queda registrada en el servidor.",
+    "guide_embed_path_note":     "La ruta de la página se detecta automáticamente desde la cabecera <code>Referer</code>. Para fijarla explícitamente, añade <code>&amp;p=/tu-ruta</code> a la URL.",
+    "guide_embed_copy":          "Copiar",
+    "guide_embed_copied":        "¡Copiado!",
+    "guide_embed_no_site_host":  "Define <code>site_host</code> en <code>config.php</code> primero — el snippet listo para pegar aparecerá aquí.",
+    "guide_embed_cli":           "Abre esta página por HTTP para ver el snippet con la URL real de tu instalación.",
+
+    "guide_dashboard_title":         "Qué muestra el dashboard",
+    "guide_dashboard_intro":         "Todo se calcula al vuelo desde la tabla <code>registros</code>. Cada fila es un hit individual, con la clasificación del visitante, el hash de IP, la ruta, el referrer y el idioma.",
+    "guide_dashboard_cards_title":   "Tarjetas superiores",
+    "guide_dashboard_cards_body":    "Hits de hoy, de los últimos 7 y 30 días, y visitantes únicos de los últimos 7 días. <em>Únicos</em> cuenta valores distintos de <code>ip_hash</code> — la misma IP en dos páginas suma como un único visitante.",
+    "guide_dashboard_charts_title":  "Gráficos",
+    "guide_dashboard_charts_body":   "<strong>Hits por hora</strong>: barras apiladas de las últimas 24h, separadas por tipo de visitante. <strong>Mezcla de visitantes</strong>: donut con la proporción de humanos, bots oficiales, bots IA y otros bots dentro del rango seleccionado.",
+    "guide_dashboard_tables_title":  "Tablas",
+    "guide_dashboard_tables_body":   "Top crawlers IA (solo filas con <code>kind = bot_ai</code>), top páginas vistas por humanos (para que el tráfico de bots no contamine el ranking) y top referrers agrupados por host (de modo que <code>https://x.com/a</code> y <code>https://x.com/b</code> se funden en una sola fila <code>x.com</code>).",
+
+    "guide_caveat_title": "Importante · La detección de bots es heurística",
+    "guide_caveat_body":  "La clasificación por <code>User-Agent</code> es una <strong>heurística, no una verificación</strong>. La cabecera User-Agent la envía el cliente y se puede falsear con trivialidad. Una petición que dice ser <code>GPTBot</code> o <code>ClaudeBot</code> podría ser en realidad un script haciéndose pasar por uno — y, al revés, un navegador real puede configurarse para enviar un User-Agent engañoso. Para identificación de bots con alta confianza haría falta consultar DNS inverso o listas de IPs oficiales de cada crawler, algo fuera del alcance de esta herramienta minimalista. Trata las etiquetas de bot del dashboard como una <em>estimación informada</em>, no como un hecho.",
+
+    "guide_privacy_title": "Privacidad y retención de datos",
+    "guide_privacy_body":  "Las IPs de los visitantes se guardan en dos columnas: <code>ip</code> (en claro) e <code>ip_hash</code> (sha256 de <code>salt + ip</code>). Pon <code>store_ip = false</code> en <code>config.php</code> para descartar la IP en claro y conservar solo el hash — el conteo de únicos sigue funcionando porque depende solo del hash. El auto-purgado agrega los meses cerrados en <code>resumenes_mensuales</code> y borra esas filas de <code>registros</code> cuando supera <code>purge_max_rows</code>. El mes en curso nunca se purga.",
+
+    "guide_security_title":         "Proteger el dashboard",
+    "guide_security_intro":         "Por defecto el dashboard es público — cualquiera que conozca la URL puede ver tus estadísticas. Dos formas de cerrarlo, de rápida a robusta:",
+    "guide_security_inapp_title":   "1. HTTP Basic Auth integrado (rápido)",
+    "guide_security_inapp_body":    "Rellena <code>auth_user</code> y <code>auth_password_hash</code> en <code>config.php</code>. El dashboard y esta guía pedirán credenciales mediante el diálogo nativo del navegador. Genera el hash desde la línea de comandos:",
+    "guide_security_https_warning": "<strong>HTTPS es imprescindible.</strong> HTTP Basic Auth envía las credenciales en base64 con cada petición. Sobre HTTP plano son triviales de recuperar.",
+    "guide_security_logout_note":   "No hay botón de logout. HTTP Basic Auth no tiene logout real — cierra la pestaña del navegador (o todas las del host) para borrar las credenciales cacheadas.",
+    "guide_security_server_title":  "2. Protección a nivel de servidor (recomendado para producción)",
+    "guide_security_server_body":   "Más robusta porque la verificación se ejecuta antes que el código PHP. Aquí va un snippet de <code>.htaccess</code> de Apache que bloquea todo el directorio mini-guardianweb. Pónlo en la raíz de la instalación y ajusta la ruta:",
+    "guide_security_htpasswd_hint": "Crea el fichero <code>.htpasswd</code> fuera del web root con: <code>htpasswd -c /ruta/a/.htpasswd tuusuario</code>",
+
+    "guide_about_title": "Sobre esta aplicación",
+    "guide_about_body":  "Esta versión mini está ofrecida por <strong>guardianweb.es</strong>. Si quieres un panel completo — con detección de bots verificada, soporte multi-sitio, histórico más largo y analítica más rica — puedes registrarte gratis.",
+    "guide_about_cta":   "Regístrate gratis en guardianweb.es →"
+}

@@ -78,6 +78,17 @@ function mgw_unique(PDO $pdo, int $since): int
     return (int)$st->fetch()['n'];
 }
 
+function mgw_kind_chip(string $kind): string
+{
+    return match ($kind) {
+        'human'        => 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200',
+        'bot_official' => 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200',
+        'bot_ai'       => 'bg-violet-100 dark:bg-violet-900/40 text-violet-800 dark:text-violet-200',
+        'bot_other'    => 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200',
+        default        => 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
+    };
+}
+
 // --- Fixed stat cards (independent of range filter) -----------------------
 $today_start = strtotime('today') ?: 0;
 $stats = [
@@ -179,6 +190,23 @@ foreach ($ref_rows as $r) {
 }
 arsort($ref_by_host);
 $top_referrers = array_slice($ref_by_host, 0, 10, true);
+
+// --- Top user-agents (with classifier verdict) ---------------------------
+// Audit aid: shows raw UA strings together with how the classifier labelled
+// them. Lets the operator spot misclassifications and judge whether what
+// counts as "human" actually looks like a real browser.
+$st = $pdo->prepare("
+    SELECT user_agent, kind, bot_name,
+           COUNT(*)              AS hits,
+           COUNT(DISTINCT ip_hash) AS uniq
+    FROM registros
+    WHERE ts >= :s
+    GROUP BY user_agent
+    ORDER BY hits DESC
+    LIMIT 15
+");
+$st->execute([':s' => $since]);
+$top_uas = $st->fetchAll();
 
 // --- Monthly history (from `resumenes_mensuales`, populated by the purge) -
 // Only metrics that survive aggregation are reconstructed: total hits per
@@ -415,6 +443,47 @@ $palette = [
                     <?php endforeach; ?>
                     </tbody>
                 </table>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <!-- Top user-agents — transparency / audit row -->
+    <section class="mt-8">
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+            <header class="mb-4">
+                <h2 class="font-semibold" data-i18n="top_uas_title">User-agents seen</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" data-i18n="top_uas_subtitle">What's actually hitting your site, with the classifier's verdict for each.</p>
+            </header>
+            <?php if (!$top_uas): ?>
+                <p class="text-sm text-slate-500 dark:text-slate-400" data-i18n="top_uas_empty">No user-agents recorded yet.</p>
+            <?php else: ?>
+                <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        <tr class="border-b border-slate-200 dark:border-slate-800">
+                            <th class="text-left py-2 font-normal" data-i18n="top_uas_col_ua">User-agent</th>
+                            <th class="text-left py-2 font-normal" data-i18n="top_uas_col_kind">Kind</th>
+                            <th class="text-left py-2 font-normal" data-i18n="top_uas_col_bot">Detected as</th>
+                            <th class="text-right py-2 font-normal" data-i18n="top_uas_col_hits">Hits</th>
+                            <th class="text-right py-2 font-normal" data-i18n="top_uas_col_uniq">Unique IPs</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($top_uas as $row): ?>
+                        <tr class="border-b border-slate-100 dark:border-slate-800 align-top">
+                            <td class="py-2 max-w-md font-mono text-xs break-all" title="<?= h($row['user_agent'] ?? '') ?>"><?= h(($row['user_agent'] ?? '') !== '' ? $row['user_agent'] : '(empty)') ?></td>
+                            <td class="py-2 whitespace-nowrap">
+                                <span class="inline-block px-2 py-0.5 rounded text-xs font-medium <?= mgw_kind_chip($row['kind']) ?>"
+                                      data-i18n="kind_<?= h($row['kind']) ?>"><?= h($row['kind']) ?></span>
+                            </td>
+                            <td class="py-2 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap"><?= h($row['bot_name'] ?: '—') ?></td>
+                            <td class="py-2 text-right tabular-nums"><?= number_format((int)$row['hits']) ?></td>
+                            <td class="py-2 text-right tabular-nums text-slate-500 dark:text-slate-400"><?= number_format((int)$row['uniq']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
             <?php endif; ?>
         </div>
     </section>
