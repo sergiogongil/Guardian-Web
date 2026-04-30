@@ -19,6 +19,8 @@ is offered by them.
 
 [Versión en español ↓](#mini-guardianweb-español)
 
+<img width="866" height="625" alt="das_1" src="https://github.com/user-attachments/assets/3db5f930-e673-4144-94d4-8cfb3510ee34" />
+
 ---
 
 ## Features
@@ -214,11 +216,6 @@ MIT — see [LICENSE](LICENSE).
 
 ---
 ---
-
-
-
-<img width="866" height="625" alt="das_dark" src="https://github.com/user-attachments/assets/e74fdb2f-f8ce-43b3-89c1-85a36d7a4726" />
-<img width="866" height="625" alt="das_1" src="https://github.com/user-attachments/assets/3db5f930-e673-4144-94d4-8cfb3510ee34" />
 
 
 # mini-guardianweb (Español)
